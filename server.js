@@ -11,7 +11,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-   origin: "https://farm-backend-lac.vercel.app",
+   origin: "https://farm-frontend-mu.vercel.app",
    // origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
