@@ -1,24 +1,72 @@
-const router = require("express").Router();
+const express = require("express");
+const router = express.Router();
 const Sale = require("../models/Salemodel");
+const Milk = require("../models/Milk");
 
-// ================= CREATE SALE =================
-router.post("/", async (req, res) => {
+// ================= GET SALES =================
+router.get("/", async (req, res) => {
     try {
-        const sale = new Sale(req.body);
-        await sale.save();
-        res.json(sale);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+        const data = await Sale.find().populate("category");
+
+        return res.json({
+            success: true,
+            data,
+        });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+        });
     }
 });
 
-// ================= GET ALL SALES =================
-router.get("/", async (req, res) => {
+// ================= CREATE SALE + REDUCE STOCK =================
+router.post("/", async (req, res) => {
     try {
-        const sales = await Sale.find().populate("category");
-        res.json(sales);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+        const {
+            category,
+            name,
+            milkType,
+            quantity,
+            pricePerKg,
+            totalPrice,
+            date,
+            time,
+        } = req.body;
+
+        // 1️⃣ create sale
+        const newSale = await Sale.create({
+            category,
+            name,
+            milkType,
+            quantity,
+            pricePerKg,
+            totalPrice,
+            date,
+            time,
+        });
+
+        // 2️⃣ reduce milk stock
+        await Milk.findOneAndUpdate(
+            {
+                category: category,
+                milkType: milkType,
+            },
+            {
+                $inc: { quantity: -quantity },
+            }
+        );
+
+        return res.json({
+            success: true,
+            data: newSale,
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+        });
     }
 });
 
@@ -28,44 +76,62 @@ router.delete("/:id", async (req, res) => {
         const deleted = await Sale.findByIdAndDelete(req.params.id);
 
         if (!deleted) {
-            return res.status(404).json({ message: "Sale not found" });
+            return res.status(404).json({
+                success: false,
+                message: "Sale not found",
+            });
         }
 
-        res.json({ message: "Sale deleted successfully", id: req.params.id });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+        return res.json({
+            success: true,
+            message: "Sale deleted successfully",
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message,
+        });
     }
 });
 
-// ================= UPDATE SALE =================
-// ================= UPDATE SALE (FIXED LOGIC) =================
+
 router.put("/:id", async (req, res) => {
     try {
-        const { quantity, pricePerKg } = req.body;
+        const oldSale = await Sale.findById(req.params.id);
 
-        // 🔥 ALWAYS recalculate totalPrice
-        const totalPrice =
-            Number(quantity || 0) * Number(pricePerKg || 0);
+        if (!oldSale) {
+            return res.status(404).json({ error: "Sale not found" });
+        }
+
+        const diff = req.body.quantity - oldSale.quantity;
 
         const updated = await Sale.findByIdAndUpdate(
             req.params.id,
+            req.body,
+            { new: true }
+        );
+
+        // 🔥 adjust milk stock
+        await Milk.findOneAndUpdate(
             {
-                ...req.body,
-                totalPrice, // ✅ override with correct value
+                category: oldSale.category,
+                milkType: oldSale.milkType,
             },
             {
-                new: true,
-                runValidators: true,
+                $inc: { quantity: -diff },
             }
-        ).populate("category");
+        );
 
-        if (!updated) {
-            return res.status(404).json({ message: "Sale not found" });
-        }
-
-        res.json(updated);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.json({
+            success: true,
+            data: updated,
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: err.message,
+        });
     }
 });
 module.exports = router;

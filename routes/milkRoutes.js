@@ -44,7 +44,7 @@ router.get("/", async (req, res) => {
   
 });
 // CREATE
-router.post("/", async (req, res) => {
+/*router.post("/", async (req, res) => {
   try {
     const { category, milkType, quantity, date } = req.body;
 
@@ -71,7 +71,40 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+*/
+router.post("/", async (req, res) => {
+  try {
+    let { category, milkType, quantity, date } = req.body;
 
+    // ✅ FORCE CONVERT TO NUMBER
+    quantity = Number(quantity);
+
+    // 🔥 ALWAYS STORE IN KG (1 liter = 10 kg OR 1 liter = 1 kg depends on your rule)
+    // Based on your frontend earlier → 1 liter = 10 kg
+    const quantityInKg = quantity;
+
+    const now = new Date();
+    const time = now.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const lastMilk = await Milk.findOne().sort({ milkId: -1 });
+
+    const newMilk = await Milk.create({
+      milkId: lastMilk ? lastMilk.milkId + 1 : 1,
+      category,
+      milkType,
+      quantity: quantityInKg, // ✅ ALWAYS KG
+      date,
+      time,
+    });
+
+    res.json(newMilk);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ================= UPDATE (EDIT) =================
 router.put("/:id", async (req, res) => {
