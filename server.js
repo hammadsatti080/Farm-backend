@@ -61,6 +61,10 @@ app.use(
 );
 app.use("/api/handleteam", require("./routes/handleteamRoutes"));
 
+const attendanceRoutes = require("./routes/attendanceRoutes");
+app.use("/api", attendanceRoutes);
+
+
 const PORT = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== "production") {
@@ -126,6 +130,8 @@ app.use(
 );
 app.use("/api/handleteam", require("./routes/handleteamRoutes"));
 
+const attendanceRoutes = require("./routes/attendanceRoutes");
+app.use("/api", attendanceRoutes);
 // ================= SERVER =================
 const PORT = process.env.PORT || 5000;
 
