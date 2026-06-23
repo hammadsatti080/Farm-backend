@@ -95,7 +95,6 @@ router.delete("/:id", async (req, res) => {
     }
 });
 
-
 router.put("/:id", async (req, res) => {
     try {
         const oldSale = await Sale.findById(req.params.id);
@@ -104,15 +103,24 @@ router.put("/:id", async (req, res) => {
             return res.status(404).json({ error: "Sale not found" });
         }
 
-        const diff = req.body.quantity - oldSale.quantity;
+        const newQty = Number(req.body.quantity);
+        const pricePerKg = oldSale.pricePerKg;
+
+        // ✅ ALWAYS recalculate total
+        const newTotal = newQty * pricePerKg;
+
+        const diff = newQty - oldSale.quantity;
 
         const updated = await Sale.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            {
+                quantity: newQty,
+                totalPrice: newTotal, // 🔥 FIXED HERE
+            },
             { new: true }
         );
 
-        // 🔥 adjust milk stock
+        // adjust stock
         await Milk.findOneAndUpdate(
             {
                 category: oldSale.category,
@@ -123,12 +131,13 @@ router.put("/:id", async (req, res) => {
             }
         );
 
-        res.json({
+        return res.json({
             success: true,
             data: updated,
         });
+
     } catch (err) {
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             error: err.message,
         });
