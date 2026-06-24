@@ -9,6 +9,7 @@ const animalSchema = new mongoose.Schema(
     buyDate: String,
     milk: String,
     vacine : String,
+    image: String,
   },
   { timestamps: true }
 );
