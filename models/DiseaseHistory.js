@@ -37,6 +37,15 @@ const DiseaseHistorySchema = new mongoose.Schema(
       enum: ["Active", "Recovered"],
       default: "Active",
     },
+
+   medicines: [
+  {
+    name: { type: String, required: true },
+    dosage: String,
+    duration: String,
+  },
+],
+
   },
   { timestamps: true }
 );

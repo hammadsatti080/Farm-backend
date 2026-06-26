@@ -68,6 +68,12 @@ app.use(
   "/api/disease-history",
   require("./routes/DiseaseHistoryRoutes")
 );
+app.use(
+  "/api/vaccine-category",
+  require("./routes/VaccineCategoryRoutes")
+);
+
+
 
 const PORT = process.env.PORT || 5000;
 
@@ -142,6 +148,12 @@ app.use(
   "/api/disease-history",
   require("./routes/DiseaseHistoryRoutes")
 );
+
+app.use(
+  "/api/vaccine-category",
+  require("./routes/VaccineCategoryRoutes")
+);
+
 
 // ================= SERVER =================
 const PORT = process.env.PORT || 5000;
