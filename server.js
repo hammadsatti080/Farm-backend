@@ -74,6 +74,8 @@ app.use(
 );
 
 
+app.use("/api/vaccination", require("./routes/VaccinationRoutes"));
+
 
 const PORT = process.env.PORT || 5000;
 
@@ -154,6 +156,7 @@ app.use(
   require("./routes/VaccineCategoryRoutes")
 );
 
+app.use("/api/vaccination", require("./routes/VaccinationRoutes"));
 
 // ================= SERVER =================
 const PORT = process.env.PORT || 5000;
