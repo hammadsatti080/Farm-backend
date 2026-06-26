@@ -64,6 +64,10 @@ app.use("/api/handleteam", require("./routes/handleteamRoutes"));
 const attendanceRoutes = require("./routes/attendanceRoutes");
 app.use("/api", attendanceRoutes);
 
+app.use(
+  "/api/disease-history",
+  require("./routes/DiseaseHistoryRoutes")
+);
 
 const PORT = process.env.PORT || 5000;
 
@@ -120,6 +124,7 @@ app.use(
     "/api/inventory-types",
     require("./routes/inventoryTypeRoutes")
 );
+
 app.use(
     "/api/inventory",
     require("./routes/inventoryRoutes")
@@ -132,6 +137,12 @@ app.use("/api/handleteam", require("./routes/handleteamRoutes"));
 
 const attendanceRoutes = require("./routes/attendanceRoutes");
 app.use("/api", attendanceRoutes);
+
+app.use(
+  "/api/disease-history",
+  require("./routes/DiseaseHistoryRoutes")
+);
+
 // ================= SERVER =================
 const PORT = process.env.PORT || 5000;
 
